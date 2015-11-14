@@ -5,6 +5,12 @@
 #include <QGuiApplication>
 #include "pushquickview.h"
 
+#ifdef Q_OS_WIN
+#   define PATH_SEPARATOR ";"
+#else
+#   define PATH_SEPARATOR ":"
+#endif
+
 int main(int argc, char *argv[])
 {
     {
@@ -13,7 +19,7 @@ int main(int argc, char *argv[])
         QDir::setCurrent(app.applicationDirPath());
     }
 
-    qputenv("QML2_IMPORT_PATH", "Push2/qml;Qt/qml");
+    qputenv("QML2_IMPORT_PATH", "Push2/qml" PATH_SEPARATOR "Qt/qml");
     qputenv("QT_PLUGIN_PATH", "Qt/plugins");
 
     QGuiApplication app(argc, argv);
