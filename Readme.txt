@@ -19,6 +19,9 @@ Build instructions (64-bit):
 6. Change the build configuration from Debug to Release
 7. Click Build
 
+Pre-built binaries:
+https://www.dropbox.com/sh/kqy3pydkpgcjusv/AAD_5q9o58XF5a6WpyGua8Sza
+
 Install instructions:
 1. Copy Push2Qml.exe executable to C:\ProgramData\Ableton\Live 9 Suite\Program
 2. Drag ColorAnimationTest.qml onto Push2Qml.exe. Alternatively, you can use any QML file.
