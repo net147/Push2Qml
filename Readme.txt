@@ -19,9 +19,16 @@ Build instructions (64-bit):
 6. Change the build configuration from Debug to Release
 7. Click Build
 
+Development:
+You may want to configure Push2Qml to automatically run a particular QML file when run from Qt Creator.
+1. Click Projects on the left sidebar
+2. Click the Run tab to access Run Settings
+3. Under Run, enter %{sourceDir}/ColorAnimationTest.qml (or any other QML file) in the Arguments text field
+4. Clicking the Run icon on the left sidebar will now start Push2Qml with the specified QML file
+
 Pre-built binaries:
 https://www.dropbox.com/sh/kqy3pydkpgcjusv/AAD_5q9o58XF5a6WpyGua8Sza
 
-Install instructions:
+Running Push2Qml:
 1. Copy Push2Qml.exe executable to C:\ProgramData\Ableton\Live 9 Suite\Program
 2. Drag ColorAnimationTest.qml onto Push2Qml.exe. Alternatively, you can use any QML file.
