@@ -51,15 +51,10 @@ PushQuickViewPrivate::~PushQuickViewPrivate()
 
 void PushQuickViewPrivate::sceneRendered()
 {
-    QImage image = q_ptr->grab().convertToFormat(QImage::Format_RGB16);
+    // Convert to BGR565
+    QImage image = q_ptr->grab().convertToFormat(QImage::Format_RGB16).rgbSwapped();
+
     uchar *bits = image.bits();
-    quint16 *pixels = reinterpret_cast<quint16 *>(bits);
-
-    for (int i = 0; i < image.byteCount() / 2; ++i) {
-        // Swap RGB565 to BGR565
-        pixels[i] = ((pixels[i] & 0x1F) << 11) | (pixels[i] & 0x07E0) | ((pixels[i] & 0xF800) >> 11);
-    }
-
     unsigned char header[] = { 0xEF, 0xCD, 0xAB, 0x89, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     int transferred = 0;
 
