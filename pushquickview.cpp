@@ -82,11 +82,11 @@ void PushQuickViewPrivate::timerEvent(QTimerEvent *event)
     sceneRendered();
 }
 
-PushQuickView::PushQuickView() :
+PushQuickView::PushQuickView(const QUrl &url) :
     d_ptr(new PushQuickViewPrivate(this))
 {
     setGeometry(0, 0, 1024, 160);
-    setSource(QUrl(QStringLiteral("qrc:/main.qml")));
+    setSource(url);
 }
 
 PushQuickView::~PushQuickView()

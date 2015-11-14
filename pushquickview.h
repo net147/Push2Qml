@@ -12,7 +12,7 @@ class PushQuickView : public FboQuickView
     Q_DECLARE_PRIVATE(PushQuickView)
 
 public:
-    PushQuickView();
+    PushQuickView(const QUrl &url);
     ~PushQuickView();
 
 private:
