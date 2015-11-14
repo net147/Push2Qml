@@ -1,3 +1,6 @@
+Description:
+Run QML on Ableton Push 2 LCD display.
+
 Build instructions (32-bit):
 1. Microsoft Visual Studio Express 2013 for Windows Desktop with Update 4
 2. Install Qt 5.5.0 from http://download.qt.io/archive/qt/5.5/5.5.0/qt-opensource-windows-x86-msvc2013-5.5.0.exe
