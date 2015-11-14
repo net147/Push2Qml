@@ -1,7 +1,5 @@
 #include "pushquickview.h"
 #include "libusb.h"
-#include <QDebug>
-#include <algorithm>
 
 class PushQuickViewPrivate : public QObject
 {

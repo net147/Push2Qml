@@ -1,5 +1,4 @@
 #include "fboquickview.h"
-#include <QGuiApplication>
 #include <QQmlComponent>
 #include <QQmlEngine>
 #include <QQuickItem>

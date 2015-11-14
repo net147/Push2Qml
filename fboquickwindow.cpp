@@ -1,5 +1,4 @@
 #include "fboquickwindow.h"
-#include <QDebug>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
