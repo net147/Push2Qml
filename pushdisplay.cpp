@@ -1,6 +1,12 @@
 #include "pushdisplay.h"
-#include "libusb.h"
 #include <QImage>
+
+#if defined(Q_CC_MSVC)
+    QT_WARNING_PUSH
+    QT_WARNING_DISABLE_MSVC(4200)
+#   include "libusb.h"
+    QT_WARNING_POP
+#endif
 
 class PushDisplayPrivate : public QObject
 {
