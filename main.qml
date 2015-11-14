@@ -33,4 +33,8 @@ Item {
             }
         }
     }
+
+    Component.onCompleted: {
+        console.log("Loaded");
+    }
 }
