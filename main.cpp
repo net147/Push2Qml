@@ -6,8 +6,8 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::addLibraryPath("Qt/plugins");
-    qputenv("QML2_IMPORT_PATH", "Qt/qml");
+    qputenv("QML2_IMPORT_PATH", "Push2/qml;Qt/qml");
+    qputenv("QT_PLUGIN_PATH", "Qt/plugins");
 
     QGuiApplication app(argc, argv);
     QCommandLineParser parser;
