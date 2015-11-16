@@ -2,9 +2,10 @@
 #define FBOQUICKVIEW_H
 
 #include "fboquickwindow.h"
-#include <QQmlError>
+#include <QList>
 #include <QScopedPointer>
 #include <QQmlComponent>
+#include <QQmlError>
 
 QT_FORWARD_DECLARE_CLASS(QQmlContext)
 
