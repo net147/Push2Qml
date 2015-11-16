@@ -59,12 +59,19 @@ PushDisplayPrivate::~PushDisplayPrivate()
 
 void PushDisplayPrivate::drawImage(const QImage &image)
 {
+    QImage source = image;
+
+    if (source.isNull()) {
+        source = QImage(size(), QImage::Format_ARGB32_Premultiplied);
+        source.fill(Qt::black);
+    }
+
     if (dithering) {
         // Scale and dither to BGR565
-        drawNativeImage(ditherToBgr565(image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+        drawNativeImage(ditherToBgr565(source.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
     } else{
         // Scale and convert to BGR565
-        drawNativeImage(image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        drawNativeImage(source.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                         .convertToFormat(QImage::Format_RGB16).rgbSwapped());
     }
 }
@@ -76,14 +83,16 @@ void PushDisplayPrivate::drawNativeImage(const QImage &image)
 
     Q_ASSERT(image.size() == size());
     Q_ASSERT(image.format() == QImage::Format_RGB16);
+    Q_ASSERT(image.byteCount() == 20 * 16384);
 
-    const uchar *bits = image.bits();
     unsigned char header[] = { 0xEF, 0xCD, 0xAB, 0x89, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     int transferred = 0;
 
     // Transfer header which indicates start of image transfer
     libusb_bulk_transfer(device, 0x01 | LIBUSB_ENDPOINT_OUT, header, sizeof(header), &transferred, 3000);
+
+    const uchar *bits = image.bits();
 
     // Transfer 20 blocks of 1024 x 8 pixels which make up a 1024 x 160 pixel screen image
     for (int i = 0; i < 20; ++i) {
@@ -101,7 +110,7 @@ QSize PushDisplayPrivate::size() const
 void PushDisplayPrivate::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-    drawNativeImage(currentImage);
+    drawImage(currentImage);
 }
 
 PushDisplay::PushDisplay(QObject *parent) :
@@ -131,6 +140,7 @@ void PushDisplay::setDithering(bool value)
     Q_D(PushDisplay);
     if (d->dithering != value) {
         d->dithering = value;
+        d->drawImage(d->currentImage);
         emit ditheringChanged();
     }
 }
@@ -138,7 +148,8 @@ void PushDisplay::setDithering(bool value)
 void PushDisplay::drawImage(const QImage &image)
 {
     Q_D(PushDisplay);
-    d->drawImage(image);
+    d->currentImage = image;
+    d->drawImage(d->currentImage);
 }
 
 QSize PushDisplay::size() const
