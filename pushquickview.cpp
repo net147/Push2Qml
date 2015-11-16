@@ -13,9 +13,6 @@ public:
 public slots:
     void sceneRendered();
 
-protected:
-    void timerEvent(QTimerEvent *event);
-
 public:
     PushDisplay display;
     PushQuickView * const q_ptr;
@@ -35,12 +32,6 @@ void PushQuickViewPrivate::sceneRendered()
 {
     Q_Q(PushQuickView);
     display.drawImage(q->grab());
-}
-
-void PushQuickViewPrivate::timerEvent(QTimerEvent *event)
-{
-    Q_UNUSED(event);
-    sceneRendered();
 }
 
 PushQuickView::PushQuickView(const QUrl &url) :
