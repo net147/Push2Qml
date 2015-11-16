@@ -55,4 +55,19 @@ PushQuickView::~PushQuickView()
 {
 }
 
+bool PushQuickView::dithering() const
+{
+    Q_D(const PushQuickView);
+    return d->display.dithering();
+}
+
+void PushQuickView::setDithering(bool value)
+{
+    Q_D(PushQuickView);
+    if (d->display.dithering() != value) {
+        d->display.setDithering(value);
+        emit ditheringChanged();
+    }
+}
+
 #include "pushquickview.moc"

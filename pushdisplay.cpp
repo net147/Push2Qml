@@ -1,4 +1,5 @@
 #include "pushdisplay.h"
+#include "dither.h"
 #include <QImage>
 
 #if defined(Q_CC_MSVC)
@@ -27,9 +28,11 @@ public:
     libusb_context *context;
     libusb_device_handle *device;
     QImage currentImage;
+    bool dithering;
 };
 
-PushDisplayPrivate::PushDisplayPrivate()
+PushDisplayPrivate::PushDisplayPrivate() :
+    dithering(false)
 {
     libusb_init(&context);
     device = libusb_open_device_with_vid_pid(context, 0x2982, 0x1967);
@@ -56,9 +59,14 @@ PushDisplayPrivate::~PushDisplayPrivate()
 
 void PushDisplayPrivate::drawImage(const QImage &image)
 {
-    // Scale and convert to BGR565
-    drawNativeImage(image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
-                    .convertToFormat(QImage::Format_RGB16).rgbSwapped());
+    if (dithering) {
+        // Scale and dither to BGR565
+        drawNativeImage(ditherToBgr565(image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+    } else{
+        // Scale and convert to BGR565
+        drawNativeImage(image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+                        .convertToFormat(QImage::Format_RGB16).rgbSwapped());
+    }
 }
 
 void PushDisplayPrivate::drawNativeImage(const QImage &image)
@@ -110,6 +118,21 @@ bool PushDisplay::isOpen() const
 {
     Q_D(const PushDisplay);
     return d->device != 0;
+}
+
+bool PushDisplay::dithering() const
+{
+    Q_D(const PushDisplay);
+    return d->dithering;
+}
+
+void PushDisplay::setDithering(bool value)
+{
+    Q_D(PushDisplay);
+    if (d->dithering != value) {
+        d->dithering = value;
+        emit ditheringChanged();
+    }
 }
 
 void PushDisplay::drawImage(const QImage &image)

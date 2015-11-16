@@ -10,10 +10,16 @@ class PushQuickView : public FboQuickView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(PushQuickView)
+    Q_PROPERTY(bool dithering READ dithering WRITE setDithering NOTIFY ditheringChanged)
 
 public:
     PushQuickView(const QUrl &url);
     ~PushQuickView();
+    bool dithering() const;
+    void setDithering(bool value);
+
+signals:
+    void ditheringChanged();
 
 private:
     const QScopedPointer<PushQuickViewPrivate> d_ptr;

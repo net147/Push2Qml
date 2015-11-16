@@ -27,8 +27,12 @@ int main(int argc, char *argv[])
 
     parser.setApplicationDescription("Push 2 QML Runner");
     parser.addHelpOption();
-    parser.addPositionalArgument("filename", QCoreApplication::translate("main", "The file to open."));
 
+    QCommandLineOption ditherOption("dither",
+                                    QCoreApplication::translate("main", "Dither graphics when rendering to BGR565."));
+
+    parser.addOption(ditherOption);
+    parser.addPositionalArgument("filename", QCoreApplication::translate("main", "The file to open."));
     parser.process(app);
 
     QString filename;
@@ -40,6 +44,7 @@ int main(int argc, char *argv[])
 
     PushQuickView w(QUrl::fromLocalFile(filename));
 
+    w.setDithering(parser.isSet("dither"));
     Q_UNUSED(w);
 
     return app.exec();
