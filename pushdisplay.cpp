@@ -1,6 +1,5 @@
 #include "pushdisplay.h"
 #include "dither.h"
-#include <QCoreApplication>
 #include <QImage>
 #include <QPainter>
 
