@@ -90,6 +90,7 @@ void PushDisplayPrivate::drawNativeImage(const QImage &image)
     QImage paddedImage(paddedSize(), image.format());
     QPainter painter;
 
+    paddedImage.fill(Qt::black);
     painter.begin(&paddedImage);
     painter.drawImage(QPoint(0, 0), image);
     painter.end();
