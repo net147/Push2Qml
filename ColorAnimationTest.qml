@@ -7,6 +7,22 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: "red"
+        border.width: 1
+        border.color: "white"
+
+        Text {
+            anchors.centerIn: parent
+            font.pixelSize: 48
+            text: "Hello world!"
+            color: "black"
+
+            SequentialAnimation on font.pixelSize {
+                running: true
+                loops: Animation.Infinite
+                PropertyAnimation { duration: 1000; to: 64 }
+                PropertyAnimation { duration: 1000; to: 48 }
+            }
+        }
 
         SequentialAnimation on color {
             running: true
