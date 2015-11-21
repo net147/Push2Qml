@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
     PushQuickView w(QUrl::fromLocalFile(filename));
 
     w.setDithering(parser.isSet("dither"));
-    Q_UNUSED(w);
+
+    if (!w.isOpen()) {
+        qCritical("Unable to open Push 2 display");
+        return 1;
+    }
 
     return app.exec();
 }

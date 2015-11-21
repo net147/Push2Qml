@@ -38,12 +38,22 @@ PushQuickView::PushQuickView(const QUrl &url) :
     d_ptr(new PushQuickViewPrivate(this))
 {
     Q_D(PushQuickView);
+
+    if (!isOpen())
+        return;
+
     setGeometry(QRect(QPoint(0, 0), d->display.size()));
     setSource(url);
 }
 
 PushQuickView::~PushQuickView()
 {
+}
+
+bool PushQuickView::isOpen() const
+{
+    Q_D(const PushQuickView);
+    return d->display.isOpen();
 }
 
 bool PushQuickView::dithering() const

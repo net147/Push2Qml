@@ -1,5 +1,6 @@
 #include "pushdisplay.h"
 #include "dither.h"
+#include <QCoreApplication>
 #include <QImage>
 #include <QPainter>
 
@@ -41,10 +42,10 @@ PushDisplayPrivate::PushDisplayPrivate() :
     libusb_init(&context);
     device = libusb_open_device_with_vid_pid(context, 0x2982, 0x1967);
 
-    if (device)
-        libusb_claim_interface(device, 0);
-    else
-        qFatal("Unable to open Push 2 display");
+    if (!device)
+        return;
+
+    libusb_claim_interface(device, 0);
 
     // Push display will automatically clear to black if another frame has not been received within 2 seconds
     startTimer(1000);

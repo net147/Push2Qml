@@ -15,6 +15,7 @@ class PushQuickView : public FboQuickView
 public:
     PushQuickView(const QUrl &url);
     ~PushQuickView();
+    bool isOpen() const;
     bool dithering() const;
     void setDithering(bool value);
 
