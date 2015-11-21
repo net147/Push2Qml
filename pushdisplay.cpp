@@ -8,6 +8,8 @@
     QT_WARNING_DISABLE_MSVC(4200)
 #   include "libusb.h"
     QT_WARNING_POP
+#else
+#   include <libusb-1.0/libusb.h>
 #endif
 
 class PushDisplayPrivate : public QObject
