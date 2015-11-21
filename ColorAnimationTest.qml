@@ -1,7 +1,7 @@
 import QtQuick 2.5
 
 Item {
-    width: 1024
+    width: 960
     height: 160
 
     Rectangle {

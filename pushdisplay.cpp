@@ -1,6 +1,7 @@
 #include "pushdisplay.h"
 #include "dither.h"
 #include <QImage>
+#include <QPainter>
 
 #if defined(Q_CC_MSVC)
     QT_WARNING_PUSH
@@ -19,6 +20,7 @@ public:
 
     void drawImage(const QImage &image);
     void drawNativeImage(const QImage &image);
+    QSize paddedSize() const;
     QSize size() const;
 
 protected:
@@ -83,7 +85,16 @@ void PushDisplayPrivate::drawNativeImage(const QImage &image)
 
     Q_ASSERT(image.size() == size());
     Q_ASSERT(image.format() == QImage::Format_RGB16);
-    Q_ASSERT(image.byteCount() == 20 * 16384);
+
+    // Each horizontal line is 960 pixels but we need to pad it to 1024 pixels
+    QImage paddedImage(paddedSize(), image.format());
+    QPainter painter;
+
+    painter.begin(&paddedImage);
+    painter.drawImage(QPoint(0, 0), image);
+    painter.end();
+
+    Q_ASSERT(paddedImage.byteCount() == 20 * 16384);
 
     unsigned char header[] = { 0xEF, 0xCD, 0xAB, 0x89, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -92,19 +103,19 @@ void PushDisplayPrivate::drawNativeImage(const QImage &image)
     // Transfer header which indicates start of image transfer
     libusb_bulk_transfer(device, 0x01 | LIBUSB_ENDPOINT_OUT, header, sizeof(header), &transferred, 3000);
 
-    const uchar *bits = image.bits();
+    // Transfer image
+    libusb_bulk_transfer(device, 0x01 | LIBUSB_ENDPOINT_OUT, const_cast<uchar *>(paddedImage.bits()),
+                         20 * 16384, &transferred, 3000);
+}
 
-    // Transfer 20 blocks of 1024 x 8 pixels which make up a 1024 x 160 pixel screen image
-    for (int i = 0; i < 20; ++i) {
-        unsigned char *data = const_cast<unsigned char *>(bits);
-
-        libusb_bulk_transfer(device, 0x01 | LIBUSB_ENDPOINT_OUT, data + 16384 * i, 16384, &transferred, 3000);
-    }
+QSize PushDisplayPrivate::paddedSize() const
+{
+    return QSize(1024, 160);
 }
 
 QSize PushDisplayPrivate::size() const
 {
-    return QSize(1024, 160);
+    return QSize(960, 160);
 }
 
 void PushDisplayPrivate::timerEvent(QTimerEvent *event)
