@@ -180,8 +180,14 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
                && data.endsWith(char(0xf7))) {
         int index = uchar(data.at(4)) - 24;
         QByteArray lineData = data.mid(8, 68);
+        QString text;
 
-        emit pushDisplayEvents->writeLine(index, QString::fromUtf8(lineData));
+        text.resize(68);
+
+        for (int i = 0; i < lineData.size(); ++i)
+            text[i] = QChar(uchar(lineData[i]));
+
+        emit pushDisplayEvents->writeLine(index, text);
     }
 }
 
