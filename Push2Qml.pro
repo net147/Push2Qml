@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     fboquickview.cpp \
     pushquickview.cpp \
     pushdisplay.cpp \
-    dither.cpp
+    dither.cpp \
+    rtmidi.cpp
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -18,8 +19,19 @@ HEADERS += \
     fboquickview.h \
     pushquickview.h \
     pushdisplay.h \
-    dither.h
+    dither.h \
+    rtmidi.h
 
+mac {
+    DEFINES += __MACOSX_CORE__
+    LIBS += -framework CoreMIDI -framework CoreAudio -framework CoreFoundation
+} else:unix {
+    DEFINES += __LINUX_ALSA__
+    LIBS += -lasound -lpthread
+} else:win32 {
+    DEFINES += __WINDOWS_MM__
+    LIBS += -lwinmm
+}
 win32:LIBS += -L$$PWD -llibusb-1.0
 else:LIBS += -lusb-1.0
 
