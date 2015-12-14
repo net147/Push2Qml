@@ -73,12 +73,6 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
         }
     }
 
-    if (push1MidiOut->isPortOpen()) {
-    } else {
-        push1MidiOut.reset();
-        return;
-    }
-
     push2MidiOut.reset(new RtMidiOut);
 
     for (int i = 0, portCount = push2MidiOut->getPortCount(); i < portCount; ++i) {
