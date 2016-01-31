@@ -8,7 +8,7 @@ Running Push2Qml with existing Ableton Live 9.5 libraries on Windows 64-bit:
 1. Copy Push2Qml.exe executable to C:\ProgramData\Ableton\Live 9 Suite\Program
 2. Drag ColorAnimationTest.qml onto Push2Qml.exe. Alternatively, you can use any QML file.
 
-Emulating an Ableton Push 1 using Ableton push 2:
+Emulating an Ableton Push 1 using Ableton Push 2:
 You need to create 2 MIDI loopback ports with the names "MIDIIN2 (Ableton Push)" and "MIDIOUT2 (Ableton Push)".
 Run Push2Qml. It will use PushDisplay.qml from the same directory if it exists to emulate the Push 1 display.
 
