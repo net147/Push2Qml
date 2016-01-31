@@ -159,8 +159,62 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
         if (self->push2MidiOut) {
             int blinkSpeed = 0;
 
-            // Map white LEDs (channel 1 only) on Push 1 to Push 2
+            // Map red Automation (CC 29), Record (CC 86) and Stop (CC 89) buttons with white LED (channel 1 only)
+            // on Push 1 to Push 2
             if (data.size() == 3 && data.at(0) == char(0xb0)
+                    && (data.at(1) == 29 || data.at(1) == 86 || data.at(1) == 89)) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = 0; // Off
+                else if (index >= 1 && index <= 3)
+                    data[2] = colorMap[121]; // Red Dim
+                else
+                    data[2] = colorMap[120]; // Red
+
+                if (index >= 1 && index <= 6)
+                    blinkSpeed = (index - 1) % 3;
+            // Map green Play button (CC 85) with white LED (channel 1 only) on Push 1 to Push 2
+            } else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 85) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = 0; // Off
+                else if (index >= 1 && index <= 3)
+                    data[2] = colorMap[123]; // Green Dim
+                else
+                    data[2] = colorMap[122]; // Green
+
+                if (index >= 1 && index <= 6)
+                    blinkSpeed = (index - 1) % 3;
+            // Map blue Solo button (CC 61) with white LED (channel 1 only) on Push 1 to Push 2
+            } else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 61) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = 0; // Off
+                else if (index >= 1 && index <= 3)
+                    data[2] = colorMap[40]; // Blue Dim
+                else
+                    data[2] = colorMap[45]; // Blue
+
+                if (index >= 1 && index <= 6)
+                    blinkSpeed = (index - 1) % 3;
+            // Map amber Mute buttion (CC 60) with white LED (channel 1 only) on Push 1 to Push 2
+            } else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 60) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = 0; // Off
+                else if (index >= 1 && index <= 3)
+                    data[2] = colorMap[127]; // Amber Dim
+                else
+                    data[2] = colorMap[126]; // Amber
+
+                if (index >= 1 && index <= 6)
+                    blinkSpeed = (index - 1) % 3;
+            // Map white LEDs (channel 1 only) on Push 1 to Push 2
+            } else if (data.size() == 3 && data.at(0) == char(0xb0)
                     && (
                         // CC 3
                         data.at(1) == 3
@@ -168,8 +222,8 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
                         || data.at(1) == 9
                         // CC 28 to CC 29
                         || data.at(1) >= 28 && data.at(1) <= 29
-                        // CC 44 to CC 63
-                        || data.at(1) >= 44 && data.at(1) <= 63
+                        // CC 44 to CC 63 (excluding CC 60)
+                        || data.at(1) >= 44 && data.at(1) <= 63 && data.at(1) != 60
                         // CC 85 to CC 90
                         || data.at(1) >= 85 && data.at(1) <= 90
                         // CC 110 to CC 119
