@@ -109,6 +109,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
         qDebug("Forwarding MIDI input \"Ableton Push 2\" to MIDI output \"MIDIIN2 (Ableton Push)\"");
         qDebug("Mapping Volume (CC 114) on Push 1 to Convert button (CC 35) on Push 2");
         qDebug("Mapping Pan & Send (CC 115) on Push 1 to Setup button (CC 30) on Push 2");
+        qDebug("Mapping LED colors and behavior on Push 1 to Push 2");
         qDebug("Push 1 display emulation started");
     } else {
         push1MidiOut.reset();
@@ -135,25 +136,138 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
 
     QByteArray data = QByteArray::fromRawData(reinterpret_cast<const char *>(message->data()),
                                               static_cast<int>(message->size()));
+    const int colorMap[] = {
+        0,   119, 56,  120,  1,  127,  65,  66,
+        38,  2,   67,   76,  5,    7,  77,  78,
+        11,  126, 85,   81,  11, 126,  85,  86,
+        11,  126, 85,   86,  43,  11,  85,  86,
+        44,  44,  13,   92,  47,  48,  91,  94,
+        15,  18,  99,   94,  18, 125, 107, 100,
+        18,  125, 103, 108,  21,  21, 105, 108,
+        23,  1,   65,  110, 127,  28,  29,  10,
+        81,  89,  97,  125,  91, 125,  56, 119,
+        127, 5,   5,   126,   9,  43,  48, 125,
+        125, 20,  23,   69,   2,   8, 126, 126,
+        11,  11,  44,   15,  16,  34,  20,  24,
+        3,   6,   126,  29,  75,  85,  89, 100,
+        101, 28,  27,   27,  28,   7,   8,   8,
+        102, 5,   44,   50,  18, 118, 118, 120,
+        27,  65,  8,    79,   6,  75,  28,  67
+    };
 
     if (!data.startsWith(char(0xf0)) || !data.endsWith(char(0xf7))) {
         if (self->push2MidiOut) {
+            int blinkSpeed = 0;
+
+            // Map white LEDs (channel 1 only) on Push 1 to Push 2
+            if (data.size() == 3 && data.at(0) == char(0xb0)
+                    && (
+                        // CC 3
+                        data.at(1) == 3
+                        // CC 9
+                        || data.at(1) == 9
+                        // CC 28 to CC 29
+                        || data.at(1) >= 28 && data.at(1) <= 29
+                        // CC 44 to CC 63
+                        || data.at(1) >= 44 && data.at(1) <= 63
+                        // CC 85 to CC 90
+                        || data.at(1) >= 85 && data.at(1) <= 90
+                        // CC 110 to CC 119
+                        || data.at(1) >= 110 && data.at(1) <= 119
+                        )
+                    ) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = 0; // Off
+                else if (index >= 1 && index <= 3)
+                    data[2] = 6; // Dim
+                else
+                    data[2] = 127; // On
+
+                if (index >= 1 && index <= 6)
+                    blinkSpeed = (index - 1) % 3;
+            // Map RG (red/green bi-color) LEDs (channel 1 only) on Push 1 to Push 2
+            } else if (data.size() == 3 && data.at(0) == char(0xb0)
+                    && (
+                        // First row of buttons under the display (CC 20 to CC 27)
+                        data.at(1) >= 20 && data.at(1) <= 27
+                        // Time resolution buttons to the right of the pads (CC 36 to CC 43)
+                        || data.at(1) >= 36 && data.at(1) <= 43)
+                    ) {
+                int index = data.at(2);
+
+                if (index == 0)
+                    data[2] = colorMap[0]; // Black
+                else if (index >= 1 && index <= 3)
+                    data[2] = colorMap[121]; // Red Dim
+                else if (index >= 4 && index <= 6)
+                    data[2] = colorMap[120]; // Red
+                else if (index >= 7 && index <= 9)
+                    data[2] = colorMap[127]; // Amber Dim
+                else if (index >= 10 && index <= 12)
+                    data[2] = colorMap[126]; // Amber
+                else if (index >= 13 && index <= 15)
+                    data[2] = colorMap[125]; // Yellow Dim
+                else if (index >= 16 && index <= 18)
+                    data[2] = colorMap[124]; // Yellow
+                else if (index >= 19 && index <= 21)
+                    data[2] = colorMap[123]; // Green Dim
+                else if (index >= 22 && index <= 24)
+                    data[2] = colorMap[122]; // Green
+                else
+                    data[2] = colorMap[122]; // Green
+
+                if (index >= 1 && index <= 24)
+                    blinkSpeed = (index - 1) % 3;
+            // Map RGB LEDs on Push 1 to Push 2
+            } else if (data.size() == 3
+                     && (
+                         // Second row of buttons under the display (CC 102 to CC 109)
+                         data.at(0) >= char(0xb0) && data.at(0) <= char(0xbf) && data.at(1) >= 102 && data.at(1) <= 109
+                         // 8x8 pads (note 36 to note 99)
+                         || data.at(0) >= char(0x90) && data.at(0) <= char(0x9f) && data.at(1) >= 36 && data.at(1) <= 99
+                         )
+                     )
+                data[2] = colorMap[data.at(2)];
+
             // Map Volume (CC 114) on Push 1 to Convert button (CC 35) on Push 2
-            if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 114)
+            if (data.size() == 3 && data.at(0) >= char(0xb0) && data.at(0) <= char(0xbf)
+                    && data.at(1) == 114)
                 data[1] = char(35);
             // Map Pan & Send (CC 115) on Push 1 to Setup button (CC 30) on Push 2
-            else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 115)
+            else if (data.size() == 3 && data.at(0) >= char(0xb0) && data.at(0) <= char(0xbf)
+                     && data.at(1) == 115)
                 data[1] = char(30);
             // Map CC 20-27 on Push 1 to CC 102-109 on Push 2
-            else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) >= 20 && data.at(1) <= 27)
+            else if (data.size() == 3 && data.at(0) >= char(0xb0) && data.at(0) <= char(0xbf)
+                     && data.at(1) >= 20 && data.at(1) <= 27)
                 data[1] = data.at(1) + (102 - 20);
             // Map CC 102-109 on Push 1 to CC 20-27 on Push 2
-            else if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) >= 102 && data.at(1) <= 109)
+            else if (data.size() == 3 && data.at(0) >= char(0xb0) && data.at(0) <= char(0xbf)
+                     && data.at(1) >= 102 && data.at(1) <= 109)
                 data[1] = data.at(1) - (102 - 20);
 
-            std::vector<uchar> outputMessage(data.constBegin(), data.constEnd());
+            for (int i = 0; i < (blinkSpeed ? 2 : 1); ++i){
+                if (i > 0) {
+                    switch (blinkSpeed) {
+                    case 1: // 0.5 seconds on, 0.5 seconds off, ...
+                        data[0] = data.at(0) + 15;
+                        data[2] = 0;
+                        break;
+                    case 2: // 0.25 seconds on, 0.25 seconds off, ...
+                        data[0] = data.at(0) + 14;
+                        data[2] = 0;
+                        break;
+                    default:
+                        break;
+                    }
+                }
 
-            self->push2MidiOut->sendMessage(&outputMessage);
+                std::vector<uchar> outputMessage(data.constBegin(), data.constEnd());
+
+                self->push2MidiOut->sendMessage(&outputMessage);
+            }
         }
     }
 
