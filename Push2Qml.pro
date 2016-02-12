@@ -43,3 +43,11 @@ win32 {
     export(libusb_dll.commands)
     QMAKE_EXTRA_TARGETS += first libusb_dll
 }
+
+msvc {
+    QMAKE_CFLAGS_RELEASE -= -O2
+    QMAKE_CFLAGS_RELEASE += /Od /Zi
+    QMAKE_CXXFLAGS_RELEASE -= -O2
+    QMAKE_CXXFLAGS_RELEASE += /Od /Zi
+    QMAKE_LFLAGS_RELEASE += /map /debug
+}
