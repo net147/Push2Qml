@@ -134,8 +134,8 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
     if (!self)
         return;
 
-    QByteArray data = QByteArray::fromRawData(reinterpret_cast<const char *>(message->data()),
-                                              static_cast<int>(message->size()));
+    QByteArray data(reinterpret_cast<const char *>(message->data()), static_cast<int>(message->size()));
+
     const int colorMap[] = {
         0,   119, 56,  120,  1,  127,  65,  66,
         38,  2,   67,   76,  5,    7,  77,  78,
@@ -363,8 +363,7 @@ void PushQuickViewPrivate::push2MidiInCallback(double timeStamp, std::vector<uch
         return;
 
     if (self->push1MidiIn) {
-        QByteArray data = QByteArray::fromRawData(reinterpret_cast<const char *>(message->data()),
-                                                  static_cast<int>(message->size()));
+        QByteArray data(reinterpret_cast<const char *>(message->data()), static_cast<int>(message->size()));
 
         // Map Convert button (CC 35) on Push 2 to Volume (CC 114) on Push 1
         if (data.size() == 3 && data.at(0) == char(0xb0) && data.at(1) == 35)
