@@ -32,7 +32,7 @@ mac {
     DEFINES += __WINDOWS_MM__
     LIBS += -lwinmm
 }
-win32:LIBS += -L$$PWD -llibusb-1.0
+win32:LIBS += -L$$PWD -llibusb-1.0 -luser32
 else:LIBS += -lusb-1.0
 
 win32 {
