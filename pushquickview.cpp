@@ -282,6 +282,7 @@ void PushQuickViewPrivate::push1MidiOutCallback(double timeStamp, std::vector<uc
                          // 8x8 pads (note 36 to note 99)
                          || data.at(0) >= char(0x90) && data.at(0) <= char(0x9f) && data.at(1) >= 36 && data.at(1) <= 99
                          )
+                     && data.at(2) < sizeof(colorMap) / sizeof(*colorMap)
                      )
                 data[2] = colorMap[data.at(2)];
 
