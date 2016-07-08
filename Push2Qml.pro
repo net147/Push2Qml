@@ -25,6 +25,8 @@ HEADERS += \
 mac {
     DEFINES += __MACOSX_CORE__
     LIBS += -framework CoreMIDI -framework CoreAudio -framework CoreFoundation
+    INCLUDEPATH += /usr/local/include
+    LIBS += -L/usr/local/lib
 } else:unix {
     DEFINES += __LINUX_ALSA__
     LIBS += -lasound -lpthread
