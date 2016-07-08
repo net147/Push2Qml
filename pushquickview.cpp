@@ -3,6 +3,23 @@
 #include "pushdisplay.h"
 #include "RtMidi.h"
 
+#if defined(Q_OS_MAC)
+#define PUSH1_INPUT_PORT "Ableton Push User Port"
+#define PUSH1_OUTPUT_PORT "Ableton Push User Port"
+#define PUSH2_INPUT_PORT "Ableton Push 2 Live Port"
+#define PUSH2_OUTPUT_PORT "Ableton Push 2 Live Port"
+#elif defined(Q_OS_WIN)
+#define PUSH1_INPUT_PORT "MIDIIN2 (Ableton Push)"
+#define PUSH1_OUTPUT_PORT "MIDIOUT2 (Ableton Push)"
+#define PUSH2_INPUT_PORT "Ableton Push 2"
+#define PUSH2_OUTPUT_PORT "Ableton Push 2"
+#else
+#define PUSH1_INPUT_PORT "Ableton Push MIDI 2"
+#define PUSH1_OUTPUT_PORT "Ableton Push MIDI 2"
+#define PUSH2_INPUT_PORT "Ableton Push 2 MIDI 1"
+#define PUSH2_OUTPUT_PORT "Ableton Push 2 MIDI 1"
+#endif
+
 class PushDisplayEvents : public QObject
 {
     Q_OBJECT
@@ -67,7 +84,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
     push1MidiOut->setCallback(&push1MidiOutCallback, this);
 
     for (int i = 0, portCount = push1MidiOut->getPortCount(); i < portCount; ++i) {
-        if (QString::fromStdString(push1MidiOut->getPortName(i)) == "MIDIOUT2 (Ableton Push)") {
+        if (QString::fromStdString(push1MidiOut->getPortName(i)) == PUSH1_OUTPUT_PORT) {
             push1MidiOut->openPort(i);
             break;
         }
@@ -76,7 +93,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
     push2MidiOut.reset(new RtMidiOut);
 
     for (int i = 0, portCount = push2MidiOut->getPortCount(); i < portCount; ++i) {
-        if (QString::fromStdString(push2MidiOut->getPortName(i)) == "Ableton Push 2") {
+        if (QString::fromStdString(push2MidiOut->getPortName(i)) == PUSH2_OUTPUT_PORT) {
             push2MidiOut->openPort(i);
             break;
         }
@@ -87,7 +104,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
     push2MidiIn->setCallback(&push2MidiInCallback, this);
 
     for (int i = 0, portCount = push2MidiIn->getPortCount(); i < portCount; ++i) {
-        if (QString::fromStdString(push2MidiIn->getPortName(i)) == "Ableton Push 2") {
+        if (QString::fromStdString(push2MidiIn->getPortName(i)) == PUSH2_INPUT_PORT) {
             push2MidiIn->openPort(i);
             break;
         }
@@ -96,7 +113,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
     push1MidiIn.reset(new RtMidiOut);
 
     for (int i = 0, portCount = push1MidiIn->getPortCount(); i < portCount; ++i) {
-        if (QString::fromStdString(push1MidiIn->getPortName(i)) == "MIDIIN2 (Ableton Push)") {
+        if (QString::fromStdString(push1MidiIn->getPortName(i)) == PUSH1_INPUT_PORT) {
             push1MidiIn->openPort(i);
             break;
         }
@@ -104,9 +121,9 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
 
     if (push1MidiOut->isPortOpen() && push2MidiOut->isPortOpen()
             && push2MidiIn->isPortOpen() && push1MidiIn->isPortOpen()) {
-        qDebug("Intercepting SysEx from MIDI input \"MIDIOUT2 (Ableton Push)\"");
-        qDebug("Forwarding MIDI input \"MIDIOUT2 (Ableton Push)\" to MIDI output \"Ableton Push 2\"");
-        qDebug("Forwarding MIDI input \"Ableton Push 2\" to MIDI output \"MIDIIN2 (Ableton Push)\"");
+        qDebug("Intercepting SysEx from MIDI input \"" PUSH1_OUTPUT_PORT "\"");
+        qDebug("Forwarding MIDI input \"" PUSH1_OUTPUT_PORT "\" to MIDI output \"" PUSH2_OUTPUT_PORT "\"");
+        qDebug("Forwarding MIDI input \"" PUSH2_INPUT_PORT "\" to MIDI output \"" PUSH1_INPUT_PORT "\"");
         qDebug("Mapping Volume (CC 114) on Push 1 to Convert button (CC 35) on Push 2");
         qDebug("Mapping Pan & Send (CC 115) on Push 1 to Setup button (CC 30) on Push 2");
         qDebug("Mapping LED colors and behavior on Push 1 to Push 2");
@@ -117,7 +134,7 @@ PushQuickViewPrivate::PushQuickViewPrivate(PushQuickView *q_ptr) :
         push2MidiIn.reset();
         push1MidiIn.reset();
         qDebug("Push 1 display emulation MIDI loopback ports not detected: "
-               "\"MIDIIN2 (Ableton Push)\" and \"MIDIOUT2 (Ableton Push)\"");
+               "\"" PUSH1_INPUT_PORT "\" and \"" PUSH1_OUTPUT_PORT "\"");
     }
 }
 
