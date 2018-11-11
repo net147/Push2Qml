@@ -1,0 +1,143 @@
+@startuml
+
+class QQuickWindow{
+    Provides the graphical scene
+    management needed to interact
+    with and display a scene of QQuickItems
+    ==
+    +QQuickWindow(QWindow*)
+    +QQuickWindow(QQuickRenderControl*)
+    +void setRenderTarget(QOpenGLFramebufferObject*)
+    +void resetOpenGLState()
+    --signals--
+    void sceneGraphInitialized()
+    void sceneGraphInvalidated()
+}
+
+class FboQuickWindow{
+    +QImage grab() const
+    +void resize(const QSize &newSize);
+    --signals--
+    void sceneRendered();
+}
+class FboQuickWindowPrivate{
+    +void render()
+    --slots--
+    void sceneGraphInitialized()
+    void sceneGraphInvalidated()
+    void renderRequested()
+    void sceneChanged()
+}
+class QOpenGLContext{
+    Represents a native OpenGL context,
+    enabling OpenGL rendering on a QSurface
+    ==
+    +bool makeCurrent(QSurface *surface)
+    +void doneCurrent()
+}
+class QOffscreenSurface{
+    Intended to be used with QOpenGLContext
+    to allow rendering with OpenGL in an
+    arbitrary thread without the need to
+    create a QWindow
+}
+class QQuickRenderControl{
+    Provides a mechanism for rendering the Qt
+    Quick scenegraph onto an offscreen render
+    target in a fully application-controlled
+    manner
+    ==
+    +void initialize(QOpenGLContext *gl)
+    +QImage grab()
+    +void polishItems()
+    +void sync()
+    +void render()
+    --signals--
+    void renderRequested()
+    void sceneChanged()
+}
+class QOpenGLFramebufferObject{
+    Provides a rendering surface that can be 
+    painted on with a QPainter with the help 
+    of QOpenGLPaintDevice, or rendered to using
+    native OpenGL calls
+}
+class QTimer{
+}
+
+
+class FboQuickView{
+    +QQmlContext *rootContext() const
+    +QList<QQmlError> errors() const
+    +enum Status { Null, Ready, Loading, Error }
+    +Status status() const
+    -void resizeEvent(QResizeEvent *event)
+    --signals--
+    void statusChanged(Status status)
+    --slots--
+    void setSource(const QUrl &url)
+}
+class FboQuickViewPrivate{
+    +void setSource(const QUrl &source)
+    --slots--
+    void componentStatusChanged(QQmlComponent::Status status)
+}
+class QQmlEngine{
+    Each QML component is instantiated in a
+    QQmlContext. QQmlContext's are essential
+    for passing data to QML components. In QML,
+    contexts are arranged hierarchically and
+    this hierarchy is managed by the QQmlEngine
+    ==
+}
+class QQmlComponent{
+    Components are reusable, encapsulated QML
+    types with well-defined interfaces
+    ==
+}
+class QQuickItem{
+    All visual items in Qt Quick inherit from
+    QQuickItem. Although a QQuickItem instance
+    has no visual appearance, it defines all the
+    attributes that are common across visual items,
+    such as x and y position, width and height,
+    anchoring and key handling support
+    ==
+}
+
+class PushQuickView{
+    +bool isOpen() const
+    +bool dithering() const
+    +void setDithering(bool)
+    --signals--
+    void ditheringChanged()
+}
+class PushQuickViewPrivate{
+
+}
+
+QQuickWindow <|-- FboQuickWindow
+FboQuickWindow <|-- FboQuickView
+FboQuickView <|-- PushQuickView
+
+FboQuickWindow *-- FboQuickWindowPrivate
+FboQuickWindowPrivate *-- QOpenGLContext
+FboQuickWindowPrivate *-- QOffscreenSurface
+FboQuickWindowPrivate *-- QQuickRenderControl
+FboQuickWindowPrivate *-- QOpenGLFramebufferObject
+FboQuickWindowPrivate *-- QTimer
+
+QQuickWindow o.. QQuickRenderControl
+QQuickWindow o.. QOpenGLFramebufferObject
+QQuickRenderControl o.. QOpenGLContext
+QOpenGLContext o.. QOffscreenSurface
+
+FboQuickView *-- FboQuickViewPrivate
+FboQuickViewPrivate *-- QQmlEngine
+FboQuickViewPrivate *-- QQmlComponent
+FboQuickViewPrivate *-- QQuickItem
+FboQuickViewPrivate o-- FboQuickView
+
+PushQuickView *-- PushQuickViewPrivate
+
+@enduml
